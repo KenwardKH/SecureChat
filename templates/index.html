@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <div class="mb-5">
+                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-4" 
+                         style="width: 100px; height: 100px;">
+                        <i class="fas fa-shield-alt fa-3x text-white"></i>
+                    </div>
+                    <h1 class="display-4 fw-bold mb-3">
+                        SecureChat
+                    </h1>
+                    <p class="lead text-muted mb-0">
+                        Secure, encrypted messaging application built with advanced cryptography
+                    </p>
+                </div>
+                
+                <div class="row g-4 mb-5">
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center p-4">
+                                <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                                     style="width: 60px; height: 60px;">
+                                    <i class="fas fa-lock fa-lg text-primary"></i>
+                                </div>
+                                <h5 class="fw-semibold mb-2">End-to-End Encryption</h5>
+                                <p class="text-muted small mb-0">
+                                    All messages are encrypted using Fernet encryption for maximum security
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center p-4">
+                                <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                                     style="width: 60px; height: 60px;">
+                                    <i class="fas fa-users fa-lg text-success"></i>
+                                </div>
+                                <h5 class="fw-semibold mb-2">Contact Management</h5>
+                                <p class="text-muted small mb-0">
+                                    Add contacts and manage your secure conversations with ease
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center p-4">
+                                <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                                     style="width: 60px; height: 60px;">
+                                    <i class="fas fa-comments fa-lg text-warning"></i>
+                                </div>
+                                <h5 class="fw-semibold mb-2">Real-time Chat</h5>
+                                <p class="text-muted small mb-0">
+                                    Instant messaging with military-grade security and privacy
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4">
+                        <i class="fas fa-user-plus me-2"></i>Get Started
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-light btn-lg px-4">
+                        <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                    </a>
+                </div>
+                
+                <div class="mt-5 pt-4 border-top">
+                    <div class="row g-4">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
+                                     style="width: 40px; height: 40px;">
+                                    <i class="fas fa-shield-alt text-primary"></i>
+                                </div>
+                                <h6 class="fw-semibold mb-1">Secure</h6>
+                                <p class="text-muted small mb-0">Military-grade encryption</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
+                                     style="width: 40px; height: 40px;">
+                                    <i class="fas fa-bolt text-success"></i>
+                                </div>
+                                <h6 class="fw-semibold mb-1">Fast</h6>
+                                <p class="text-muted small mb-0">Real-time messaging</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
+                                     style="width: 40px; height: 40px;">
+                                    <i class="fas fa-eye-slash text-warning"></i>
+                                </div>
+                                <h6 class="fw-semibold mb-1">Private</h6>
+                                <p class="text-muted small mb-0">End-to-end privacy</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
+                                     style="width: 40px; height: 40px;">
+                                    <i class="fas fa-mobile-alt text-info"></i>
+                                </div>
+                                <h6 class="fw-semibold mb-1">Responsive</h6>
+                                <p class="text-muted small mb-0">Works on all devices</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

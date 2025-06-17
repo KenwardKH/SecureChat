@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}Chat with {{ contact.username }}{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" 
+                             style="width: 40px; height: 40px;">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                        <div>
+                            <h5 class="mb-0 fw-semibold">{{ contact.username }}</h5>
+                            <small>
+                                <i class="fas fa-circle text-online-dot me-1"></i>
+                                <span class="text-online-label">Online</span>
+                            </small> 
+                        </div>
+                    </div>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i>Back
+                    </a>
+                </div>
+            </div>
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    {% for message in messages %}
+                        <div class="message {% if message.sender_id == session.user_id %}sent{% else %}received{% endif %}">
+                            <div class="message-content">{{ message.message }}</div>
+                            <div class="message-time">
+                                <i class="fas fa-clock me-1"></i>{{ message.timestamp[:19] }}
+                                {% if message.sender_id != session.user_id %}
+                                    - {{ message.sender_username }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="chat-input">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="messageInput" 
+                               placeholder="Type your message..." maxlength="1000">
+                        <button class="btn btn-primary" type="button" id="sendButton">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="text-center mt-2">
+                        <small class="text-muted">
+                            <i class="fas fa-shield-alt me-1"></i>Messages are end-to-end encrypted
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Data untuk JavaScript -->
+<script type="application/json" id="chatData">
+{
+    "contactId": {{ contact.id | tojson }},
+    "currentUserId": {{ session.user_id | tojson }}
+}
+</script>
+
+<!-- Socket.IO client library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+
+<script>
+    // Ambil data dari JSON element
+    const chatData = JSON.parse(document.getElementById('chatData').textContent);
+    const contactId = chatData.contactId;
+    const currentUserId = chatData.currentUserId;
+    
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const chatMessages = document.getElementById('chatMessages');
+
+    // Initialize Socket.IO dengan debugging
+    const socket = io({
+        transports: ['websocket', 'polling'],
+        upgrade: true,
+        rememberUpgrade: true
+    });
+
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function addMessageToChat(message) {
+        console.log('Adding message to chat:', message);
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message ' + (message.sender_id === currentUserId ? 'sent' : 'received');
+        messageDiv.innerHTML = 
+            '<div class="message-content">' + message.message + '</div>' +
+            '<div class="message-time">' +
+            '<i class="fas fa-clock me-1"></i>' + message.timestamp.substring(0, 19) +
+            (message.sender_id !== currentUserId ? ' - ' + message.sender_username : '') +
+            '</div>';
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+    }
+
+    function sendMessage() {
+        const message = messageInput.value.trim();
+        if (!message) return;
+
+        console.log('Sending message:', message);
+
+        // Disable send button while sending
+        sendButton.disabled = true;
+        sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        // Send message via WebSocket
+        socket.emit('send_message', {
+            user_id: currentUserId,
+            receiver_id: contactId,
+            message: message
+        });
+
+        // Clear input immediately for better UX
+        messageInput.value = '';
+        
+        // Re-enable send button
+        sendButton.disabled = false;
+        sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
+    }
+
+    function loadInitialMessages() {
+        console.log('Loading initial messages...');
+        fetch('/get_messages/' + contactId)
+        .then(response => response.json())
+        .then(messages => {
+            console.log('Loaded messages:', messages);
+            chatMessages.innerHTML = '';
+            messages.forEach(message => {
+                addMessageToChat(message);
+            });
+            scrollToBottom();
+        })
+        .catch(error => console.error('Error loading messages:', error));
+    }
+
+    // Socket.IO event handlers
+    socket.on('connect', function() {
+        console.log('✅ Connected to WebSocket server');
+        // Join the chat room with user_id
+        socket.emit('join_chat', { 
+            user_id: currentUserId,
+            contact_id: contactId 
+        });
+        console.log('Joined chat room for contact:', contactId);
+    });
+
+    socket.on('disconnect', function() {
+        console.log('❌ Disconnected from WebSocket server');
+    });
+
+    socket.on('connect_error', function(error) {
+        console.error('WebSocket connection error:', error);
+    });
+
+    socket.on('new_message', function(message) {
+        console.log('📨 Received new message via WebSocket:', message);
+        addMessageToChat(message);
+    });
+
+    // Event listeners
+    sendButton.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+
+    // Load initial messages only once
+    loadInitialMessages();
+    
+    // Focus on message input when page loads
+    messageInput.focus();
+
+    // Handle page unload
+    window.addEventListener('beforeunload', function() {
+        console.log('Leaving chat room...');
+        socket.emit('leave_chat', { 
+            user_id: currentUserId,
+            contact_id: contactId 
+        });
+    });
+
+    // Debug: Log that no polling is set up
+    console.log('🚀 Chat initialized with WebSocket - NO POLLING');
+</script>
+{% endblock %} 
