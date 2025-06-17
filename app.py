@@ -11,8 +11,9 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import base64
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-change-this-in-production'
-socketio = SocketIO(app, cors_allowed_origins="*")
+app.secret_key = os.environ.get(
+    'SECRET_KEY', 'your-secret-key-change-this-in-production')
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 # Database initialization
 
