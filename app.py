@@ -10,6 +10,8 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 import base64
 
+DB_PATH = os.environ.get("DB_PATH", "/tmp/secure_chat.db")
+
 app = Flask(__name__)
 app.secret_key = os.environ.get(
     'SECRET_KEY', 'your-secret-key-change-this-in-production')
@@ -19,7 +21,7 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 
 def init_db():
-    conn = sqlite3.connect('secure_chat.db')
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     # Users table
@@ -101,7 +103,7 @@ def decrypt_message(encrypted_message, key):
 
 
 def get_db_connection():
-    conn = sqlite3.connect('secure_chat.db')
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
